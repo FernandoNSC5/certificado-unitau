@@ -96,7 +96,7 @@ try{
 	$pdf = new AlphaPDF();
 
 	foreach($trabalhos as $trabalho){
-		$build_text = utf8_decode($trabalho['alunos'] . " orientados por " . $trabalho['orientador'] . " apresentaram o trabalho \"" . $trabalho['titulo_trabalho'] . "\" no " . $trabalho['evento'] . " durante o VII Congresso Internacional de Ciência, Tecnologia e Desenvolvimento, realizado naa Universidade de Taubaté, no dia 20 de setembro de 2018.");
+		$build_text = utf8_decode("<b>" . $trabalho['alunos'] . "</b> orientados por <b>" . $trabalho['orientador'] . "</b> apresentaram o trabalho <b>\"" . $trabalho['titulo_trabalho'] . "\"</b> no <b>" . $trabalho['evento'] . "</b> durante o VII Congresso Internacional de Ciência, Tecnologia e Desenvolvimento, realizado naa Universidade de Taubaté, no dia 20 de setembro de 2018.");
 
 	    $pdf->AddPage('L');
 	    $pdf->SetLineWidth(1.5);
@@ -106,9 +106,14 @@ try{
 	    //Font Family - Font Size
 	    $pdf->SetFont('Arial', '', 10);
 	    //Axys fine ajusts
-	    $pdf->SetXY(30,80);
-	    //Cell position
-	    $pdf->MultiCell(240, 8, $build_text, '', 'J', 0); 
+	    $pdf->SetXY(10,80);
+	    $pdf->SetLeftMargin(45);
+	    $pdf->SetRightMargin(45);
+
+	    //Cell position old
+	    //$pdf->MultiCell(240, 8, $build_text, '', 'J', 0); 
+
+	    $pdf->WriteHTML($build_text);
 
 	  } 
 
@@ -119,5 +124,6 @@ try{
 	echo "Ops! An error ocurred while trying to build the PDF file :c Please, contact suport :D";
 } finally {
 	echo "<script> alert('Ops! Algo não funcionou bem :c Por favor, contate o incrível pessoal do suporte (gentilmente) :D');";
-	echo "location.href='../index.php'</script>";
+	//echo "location.href='../index.php'</script>";
 }
+
