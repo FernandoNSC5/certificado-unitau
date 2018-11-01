@@ -108,7 +108,7 @@ try{
 	    //Axys fine ajusts
 	    $pdf->SetXY(30,80);
 	    //Cell position
-	    $pdf->MultiCell(240, 8, $build_text, '', 'C', 0); 
+	    $pdf->MultiCell(240, 8, $build_text, '', 'J', 0); 
 
 	  } 
 
