@@ -11,6 +11,10 @@ $db = 'cicted_bd_2018';
 
 //Base connection
 $conn = mysqli_connect($host, $user, $senha, $db);
+
+//Brings info in UTF8 codification
+mysqli_set_charset($conn, "utf8");
+
 if(! $conn ) {
   die('Sorry :c There\`s a problem in our Database');
 }
@@ -70,13 +74,14 @@ GROUP BY t.id_trabalho LIMIT 1500";
 $trabalhos = [];
 
 $getTrabalhos = mysqli_query($conn, $qrr);
+
 if( !$getTrabalhos || $getTrabalhos->num_rows === 0 ) {
   echo "<script> alert('O nome/cpf informado não foi encontrado em nossa base de dados :c');";
   echo "location.href='../index.php'</script>";
   exit();
 }
 while($row = mysqli_fetch_array($getTrabalhos, MYSQLI_ASSOC)) {
-  array_push($trabalhos, ['orientador' => $row['orientador'], 'alunos' => $row['alunos'], 'titulo_trabalho' => $row['titulo_trabalho']]);
+  array_push($trabalhos, ['orientador' => $row['orientador'], 'alunos' => $row['alunos'], 'titulo_trabalho' => $row['titulo_trabalho'], 'evento' => $row['evento'], 'area' => $row['area'], 'subarea' => $row['subarea']]);
 }
 
 mysqli_close($conn);
@@ -91,26 +96,28 @@ try{
 	$pdf = new AlphaPDF();
 
 	foreach($trabalhos as $trabalho){
-		$build_text = utf8_decode($trabalho['alunos'] . " orientados por " . $trabalho['orientador'] . "apresentaram o trabalho " . $trabalho['titulo_trabalho'] . " durante o VII Congresso Internacional de Ciência, Tecnologia e Desenvolvimento, realizado pela Universidade de Taubaté, no dia 20 de setembro de 2018.");
+		$build_text = utf8_decode($trabalho['alunos'] . " orientados por " . $trabalho['orientador'] . " apresentaram o trabalho \"" . $trabalho['titulo_trabalho'] . "\" no " . $trabalho['evento'] . " durante o VII Congresso Internacional de Ciência, Tecnologia e Desenvolvimento, realizado naa Universidade de Taubaté, no dia 20 de setembro de 2018.");
 
 	    $pdf->AddPage('L');
 	    $pdf->SetLineWidth(1.5);
 	    $pdf->Image('../images/base_model.png',0,0,297);
 	    $pdf->SetAlpha(1);
 
-	    // Mostrar o corpo
-	    $pdf->SetFont('Arial', '', 10); // Tipo de fonte e tamanho
-	    $pdf->SetXY(15,102); //Parte chata onde tem que ficar ajustando a posição X e Y
-	    $pdf->MultiCell(265, 8, $build_text, '', 'C', 0); // Tamanho width e height e posição
+	    //Font Family - Font Size
+	    $pdf->SetFont('Arial', '', 10);
+	    //Axys fine ajusts
+	    $pdf->SetXY(30,80);
+	    //Cell position
+	    $pdf->MultiCell(240, 8, $build_text, '', 'C', 0); 
 
-	    // $pdfdoc = $pdf->Output('', 'S');
-	  }
+	  } 
 
-	  $pdf->Output(); // Mostrar o certificado na tela do navegador
+	  //Output PDF file
+	  $pdf->Output(); 
 
 }catch(Exception $e){
 	echo "Ops! An error ocurred while trying to build the PDF file :c Please, contact suport :D";
 } finally {
 	echo "<script> alert('Ops! Algo não funcionou bem :c Por favor, contate o incrível pessoal do suporte (gentilmente) :D');";
-	// echo "location.href='../index.php'</script>";
+	echo "location.href='../index.php'</script>";
 }
