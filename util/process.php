@@ -1,5 +1,7 @@
-<!-- Backend - Process -->
 <?php
+
+setlocale(LC_ALL, 'pt_BR', 'pt_BR.iso-8859-1', 'pt_BR.utf-8', 'portuguese');
+date_default_timezone_set('America/Sao_Paulo');
 
 //Base data user
 $host = '184.107.51.101:3306';
@@ -12,11 +14,9 @@ $conn = mysqli_connect($host, $user, $senha, $db);
 if(! $conn ) {
   die('Sorry :c There\`s a problem in our Database');
 }
-mysqli_connect($conn, "utf-8");
 
 //Query process
-if($_POST['cpf']){
-
+if(isset($_POST['cpf']) && strlen($_POST['cpf']) > 0){
   $qrr = "SELECT t.identificador_trabalho AS identificador, t.titulo_trabalho, orientadores.nomes AS orientador, autores.nomes AS alunos, e.nome_evento AS evento, area.nome_area AS area, s.nome_subarea AS subarea, avaliacoes1.media AS media, autores.cpf
 
 FROM (SELECT t.id_trabalho, GROUP_CONCAT(if(atrab.orientador IS FALSE,ud.nome_usuario,null) SEPARATOR ', ') AS nomes, GROUP_CONCAT(if(atrab.orientador IS FALSE,u.email_usuario,null) SEPARATOR ', ') AS email, GROUP_CONCAT(if(atrab.orientador IS FALSE,ud.cpf_usuario,null) SEPARATOR ', ') AS cpf FROM TB_TRABALHO t LEFT OUTER JOIN TB_AUTOR_TRABALHO atrab ON t.id_trabalho = atrab.id_trabalho LEFT OUTER JOIN TB_USUARIO u ON atrab.id_usuario = u.id_usuario LEFT OUTER JOIN TB_USUARIO_DADOS ud ON ud.id_usuario_dados = u.usuario_dados_id GROUP BY t.id_trabalho) autores, 
@@ -40,8 +40,7 @@ AND (t.id_evento != 2 AND t.id_evento != 3 AND t.id_evento != 4)
 AND autores.cpf LIKE '%".$_POST['cpf']."%'
 GROUP BY t.id_trabalho";
 
-}else if($_POST['name']){
-
+}else if(isset($_POST['name']) && strlen($_POST['name']) > 0){
   $qrr = "SELECT t.identificador_trabalho AS identificador, t.titulo_trabalho, orientadores.nomes AS orientador, alunos.nomes AS alunos, e.nome_evento AS evento, area.nome_area AS area, s.nome_subarea AS subarea, avaliacoes1.media
 
 FROM (SELECT t.id_trabalho, GROUP_CONCAT(a.nome_aluno SEPARATOR ', ') AS nomes FROM TB_TRABALHO t LEFT OUTER JOIN TB_ALUNO a ON t.id_trabalho = a.id_trabalho GROUP BY t.id_trabalho) alunos, 
@@ -86,37 +85,32 @@ mysqli_close($conn);
 //					PDF BUILDER MODULE
 //***************************************************************
 try{
-	setlocale(LC_ALL, 'pt_BR', 'pt_BR.iso-8859-1', 'pt_BR.utf-8', 'portuguese');
-	date_default_timezone_set('America/Sao_Paulo');
 	//Alpha PDF Framework
-	require('fpdf/alphapfd.php');
+	require('fpdf/alphapdf.php');
 
 	$pdf = new AlphaPDF();
 
 	foreach($trabalhos as $trabalho){
 		$build_text = utf8_decode($trabalho['alunos'] . " orientados por " . $trabalho['orientador'] . "apresentaram o trabalho " . $trabalho['titulo_trabalho'] . " durante o VII Congresso Internacional de Ciência, Tecnologia e Desenvolvimento, realizado pela Universidade de Taubaté, no dia 20 de setembro de 2018.");
-		$pdf->AddPage('L');
+
+	    $pdf->AddPage('L');
 	    $pdf->SetLineWidth(1.5);
 	    $pdf->Image('../images/base_model.png',0,0,297);
 	    $pdf->SetAlpha(1);
-	    //Font Family
-	    $pdf->SetFont('Arial', 'B', 20);
-		//Axys fine ajustment
-		$pdf->SetXY(15, 87);
-		$pdf->MultiCell(256, 10, utf8_decode($trabalho['orientador']).",", '', 'C', 0);
 
-		//Body text - Certificate - Same as before
-		$pdf->SetFont('Arial', '', 10);
-		$pdf->SetXY(15, 102);
-		$pdf->MultiCell(256, 8, $texto, '', 'C', 0);
-	}
+	    // Mostrar o corpo
+	    $pdf->SetFont('Arial', '', 10); // Tipo de fonte e tamanho
+	    $pdf->SetXY(15,102); //Parte chata onde tem que ficar ajustando a posição X e Y
+	    $pdf->MultiCell(265, 8, $build_text, '', 'C', 0); // Tamanho width e height e posição
 
-	//Generate certificate PDF
-	$pdf->Output();
+	    // $pdfdoc = $pdf->Output('', 'S');
+	  }
+
+	  $pdf->Output(); // Mostrar o certificado na tela do navegador
 
 }catch(Exception $e){
 	echo "Ops! An error ocurred while trying to build the PDF file :c Please, contact suport :D";
 } finally {
 	echo "<script> alert('Ops! Algo não funcionou bem :c Por favor, contate o incrível pessoal do suporte (gentilmente) :D');";
-	echo "location.href='../index.php'</script>";
+	// echo "location.href='../index.php'</script>";
 }

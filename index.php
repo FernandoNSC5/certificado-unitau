@@ -8,9 +8,8 @@
 <html lang="pt-br">
 
 	<head>
-		
+
 		<title>Unitau - Certificados</title>
-		
 		<!-- Basics -->
 		<meta charset="UTF-8">
 		<meta name="viewport" contente="width=device-width, initial-scale=1">
@@ -27,7 +26,7 @@
 			<div class="container">
 				<div class="wrap w3-animate-opacity">
 
-					<form id="certificate-form" class="certificate-form validate-form" action="util/process.php" method="POST">
+					<form id="certificate-form" class="certificate-form validate-form" action="util/process.php" method="POST" onsubmit="submitFFF(event)">
 						<!-- Top form title -->
 						<span class="form-title">
 							Certificados
@@ -63,70 +62,52 @@
 </html>
 
 <!-- JS input mask for cpf -->
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
 <script>
-	
-	function format(mask, doc){
-		var i = doc.value.length;
-		var out = mask.substring(0,1);
-		var text = mask.substring(i);
-		if(text.substring(0,1) != out){
-			doc.value += text.substring(0,1);
-		}
-	}
+	function submitFFF(e){
+		var cpf = $("#cpf").val();
+		var name = $("#name").val();
 
-	$(document).ready(function() {
-        $('#certificate-form').bootstrapValidator({
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
-            fields: {
-                cpf: {
-                    validators: {
-                        callback: {
-                            message: 'CPF Invalido',
-                            callback: function(value) {
-                                  //retira mascara e nao numeros
-                                cpf = value.replace(/[^\d]+/g, '');
-                                if (cpf == '') return false;
-
-                                if (cpf.length != 11) return false;
-
-                                // testa se os 11 digitos são iguais, que não pode.
-                                var valido = 0;
-                                for (i = 1; i < 11; i++) {
-                                    if (cpf.charAt(0) != cpf.charAt(i)) valido = 1;
-                                }
-                                if (valido == 0) return false;
-
-                               //  calculo primeira parte
-                                aux = 0;
-                                for (i = 0; i < 9; i++)
-                                    aux += parseInt(cpf.charAt(i)) * (10 - i);
-                                check = 11 - (aux % 11);
-                                if (check == 10 || check == 11)
-                                    check = 0;
-                                if (check != parseInt(cpf.charAt(9)))
-                                    return false;
-
-                                //calculo segunda parte
-                                aux = 0;
-                                for (i = 0; i < 10; i++)
-                                    aux += parseInt(cpf.charAt(i)) * (11 - i);
-                                check = 11 - (aux % 11);
-                                if (check == 10 || check == 11)
-                                    check = 0;
-                                if (check != parseInt(cpf.charAt(10)))
-                                    return false;
-                                return true;
-
-                            }
-                        }
-                    }
-                }
+		if(cpf != null && cpf.length){
+			if(cpf.length != 11){
+				alert("Digite um cpf valido");
+				e.preventDefault();
+				return;
+			}
+            aux = 0;
+            for (i = 0; i < 9; i++)
+                aux += parseInt(cpf.charAt(i)) * (10 - i);
+            check = 11 - (aux % 11);
+            if (check == 10 || check == 11)
+                check = 0;
+            if (check != parseInt(cpf.charAt(9))){
+				alert("Digite um cpf valido");
+                e.preventDefault();
+                return;
             }
-        })
 
-    });
+            //calculo segunda parte
+            aux = 0;
+            for (i = 0; i < 10; i++)
+                aux += parseInt(cpf.charAt(i)) * (11 - i);
+            check = 11 - (aux % 11);
+            if (check == 10 || check == 11)
+                check = 0;
+            if (check != parseInt(cpf.charAt(10))){
+				alert("Digite um cpf valido");
+                e.preventDefault();
+                return;
+            }
+			return;
+		} else if(name != null && name.length){
+			return;
+		}
+
+		e.preventDefault();
+
+
+	}
 </script>
